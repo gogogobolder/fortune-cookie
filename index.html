@@ -178,7 +178,7 @@
 
     // 2) Crack hint
     crackPath.style.opacity=.9; cookieSvg.classList.add('crack');
-    navigator.vibrate?.(40); await wait(200);
+    try{ if(typeof navigator!=='undefined' && typeof navigator.vibrate==='function'){ navigator.vibrate(40); } }catch(e){} await wait(200);
 
     // 3) Split
     crackPath.style.opacity=0; cookieSvg.style.opacity=0;
@@ -228,6 +228,27 @@
   $('#share').addEventListener('click', async () => {
     const text = buildShareText();
     const url  = buildShareUrl();
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    // 1) モバイルで Web Share API があれば最優先
+    if (isMobile && navigator.share) {
+      try {
+        await navigator.share({ title:'明日の運勢ガチャ', text, url });
+        return;
+      } catch(e) { /* ユーザーキャンセル等はフォールバックへ */ }
+    }
+    // 2) デスクトップ等では Twitter intent を開く（確実に“何か起きる”）
+    const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    const win = window.open(intent, '_blank');
+    if (!win) {
+      // 3) ポップアップブロック時はクリップボードに退避
+      try{
+        await navigator.clipboard.writeText(`${text}
+${url}`);
+        alert('Twitterを開けなかったので、運勢とリンクをコピーしたよ');
+      }catch{ alert('共有に失敗。クリップボードにも保存できなかった…'); }
+    }
+  });
+    const url  = buildShareUrl();
     try{
       if(navigator.share){
         await navigator.share({ title:'明日の運勢ガチャ', text, url });
@@ -240,7 +261,6 @@
       const u = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
       window.open(u,'_blank');
     }
-  });
 
   $('#reset').addEventListener('click', () => {
     state = { count:0, history:[] };
