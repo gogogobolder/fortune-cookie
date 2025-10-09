@@ -152,11 +152,16 @@ $('#share').addEventListener('click', async ()=>{
       const tw = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
       window.open(tw,'_blank');
     }
-  }catch{
-    await navigator.clipboard.writeText(`${text}\\n${url}`);
-    alert('リンクをコピーしたよ！');
+  }catch(e){
+    try {
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      alert('リンクをコピーしたよ！');
+    } catch {
+      alert('共有にもコピーにも失敗したみたい…');
+    }
   }
 });
+
 
 // 開いた時に共有URLから表示
 (function(){
