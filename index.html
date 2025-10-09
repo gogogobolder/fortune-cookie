@@ -136,11 +136,12 @@ function buildShareText(){
   return `【明日の運勢ガチャ】\\n${fortune}\\nヒント：${tip}\\n#明日の運勢ガチャ #ノーコード`;
 }
 
-function buildShareUrl(){
-  const fortune = slipFortune.textContent;
-  const tip = slipTip.textContent;
-  return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}`;
+function buildShareText() {
+  const fortune = slipFortune.textContent.trim();
+  const tip = slipTip.textContent.trim();
+  return `【明日の運勢ガチャ】 ${fortune} ヒント：${tip} #明日の運勢ガチャ #ノーコード`;
 }
+
 
 $('#share').addEventListener('click', async ()=>{
   const text = buildShareText();
