@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>明日の運勢ガチャ</title>
   <style>
-    :root{
-      --bg:#0f172a; --panel:#101625cc; --text:#e5e7eb; --muted:#94a3b8;
-      --accent:#fbbf24; --accent2:#f59e0b;
-    }
+    :root{ --bg:#0f172a; --panel:#101625cc; --text:#e5e7eb; --muted:#94a3b8; --accent:#fbbf24; --accent2:#f59e0b; }
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;display:grid;place-items:center;background:radial-gradient(80vw 80vh at 50% -10%,#182236,#0b1220);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans JP,sans-serif;color:var(--text)}
     .card{width:min(720px,94vw);background:linear-gradient(180deg,#0b1220dd,#0b1220b0);border:1px solid #1f2937;border-radius:20px;padding:24px 20px;box-shadow:0 10px 30px #0008}
@@ -137,29 +134,24 @@
   }
   // 共有文（運勢＋ヒント＋タグ）
   function buildShareText(){
-    // 共有に使う「運勢つきURL」を作る関数
-function buildShareUrl(){
-  const fortune = document.getElementById('slipFortune').textContent;
-  const tip = document.getElementById('slipTip').textContent;
-  return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}`;
-}
-
     const title = '明日の運勢ガチャ';
     const fortune = document.getElementById('slipFortune').textContent;
     const tip = document.getElementById('slipTip').textContent;
     const tags = '#明日の運勢ガチャ #ノーコード';
     return `【${title}】\n${fortune}\nヒント：${tip}\n${tags}`;
   }
+  // 運勢付きURLを作成
+  function buildShareUrl(){
+    const fortune = document.getElementById('slipFortune').textContent;
+    const tip = document.getElementById('slipTip').textContent;
+    return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}`;
+  }
   function once(el, event){
-    return new Promise(res=>{
-      const h=()=>{ el.removeEventListener(event,h); res(); };
-      el.addEventListener(event,h);
-    });
+    return new Promise(res=>{ const h=()=>{ el.removeEventListener(event,h); res(); }; el.addEventListener(event,h); });
   }
   function onceWithTimeout(el, event, ms){
     return new Promise(res=>{
-      let done=false;
-      const h=()=>{ if(done) return; done=true; el.removeEventListener(event,h); res(); };
+      let done=false; const h=()=>{ if(done) return; done=true; el.removeEventListener(event,h); res(); };
       el.addEventListener(event,h);
       setTimeout(()=>{ if(done) return; done=true; el.removeEventListener(event,h); res(); }, ms);
     });
@@ -213,43 +205,42 @@ function buildShareUrl(){
       state.history = state.history.slice(0,20);
       localStorage.setItem('tomorrow_fortune_v1', JSON.stringify(state));
       render();
-    } finally {
-      btn.disabled = false; btn.style.opacity = '';
-    }
+    } finally { btn.disabled = false; btn.style.opacity = ''; }
   }
 
   // ===== イベント =====
   $('#roll').addEventListener('click', roll);
 
-// コピー：運勢＋ヒント＋URL（運勢つき）
-$('#copy').addEventListener('click', async () => {
-  const text = `${buildShareText()}\n${buildShareUrl()}`;
-  try{
-    await navigator.clipboard.writeText(text);
-    alert('運勢とリンクをコピーしたよ');
-  }catch{
-    const u = `https://twitter.com/intent/tweet?text=${encodeURIComponent(buildShareText())}&url=${encodeURIComponent(buildShareUrl())}`;
-    window.open(u,'_blank');
-  }
-});
-
-// シェア：Web Share API → クリップボード → Twitter（いずれも運勢つきURL）
-$('#share').addEventListener('click', async () => {
-  const text = buildShareText();
-  const url  = buildShareUrl();
-  try{
-    if(navigator.share){
-      await navigator.share({ title:'明日の運勢ガチャ', text, url });
-    }else{
-      await navigator.clipboard.writeText(`${text}\n${url}`);
+  // コピー：運勢＋ヒント＋URL（運勢つき）
+  $('#copy').addEventListener('click', async () => {
+    const text = `${buildShareText()}\n${buildShareUrl()}`;
+    try{
+      await navigator.clipboard.writeText(text);
       alert('運勢とリンクをコピーしたよ');
+    }catch(e){
+      console.error(e);
+      const u = `https://twitter.com/intent/tweet?text=${encodeURIComponent(buildShareText())}&url=${encodeURIComponent(buildShareUrl())}`;
+      window.open(u,'_blank');
     }
-  }catch{
-    const u = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-    window.open(u,'_blank');
-  }
-});
+  });
 
+  // シェア：Web Share API → クリップボード → Twitter（いずれも運勢つきURL）
+  $('#share').addEventListener('click', async () => {
+    const text = buildShareText();
+    const url  = buildShareUrl();
+    try{
+      if(navigator.share){
+        await navigator.share({ title:'明日の運勢ガチャ', text, url });
+      }else{
+        await navigator.clipboard.writeText(`${text}\n${url}`);
+        alert('運勢とリンクをコピーしたよ');
+      }
+    }catch(e){
+      console.error(e);
+      const u = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+      window.open(u,'_blank');
+    }
+  });
 
   $('#reset').addEventListener('click', () => {
     state = { count:0, history:[] };
@@ -259,23 +250,21 @@ $('#share').addEventListener('click', async () => {
   });
 
   // 共有URLで開かれたら、その運勢を最初から表示
-(function hydrateFromQuery(){
-  const sp = new URLSearchParams(location.search);
-  if(!sp.has('f')) return;
-  const f = sp.get('f'); // 例: "☀ 太陽吉"
-  const t = sp.get('t') || '';
-  slipFortune.textContent = f;
-  slipTip.textContent = t;
-  slip.classList.add('show');
-  // クエリを消して綺麗にしたい場合は次の1行を有効化
-  // history.replaceState(null, '', PUBLIC_URL);
-})();
+  (function hydrateFromQuery(){
+    const sp = new URLSearchParams(location.search);
+    if(!sp.has('f')) return;
+    const f = sp.get('f');
+    const t = sp.get('t') || '';
+    slipFortune.textContent = f;
+    slipTip.textContent = t;
+    slip.classList.add('show');
+    // クエリを消してURLを綺麗にしたい場合は次の1行を有効化
+    // history.replaceState(null, '', PUBLIC_URL);
+  })();
 
   // 初期表示
   render();
   document.getElementById('footerDate').textContent = `© ${new Date().getFullYear()} Tomorrow Fortune Gacha`;
-
-  // PWAはローカルだと不要。必要ならLive Server/本番で有効化してOK。
 </script>
 </body>
 </html>
