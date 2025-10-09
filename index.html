@@ -6,15 +6,10 @@
   <title>明日の運勢ガチャ</title>
   <style>
     :root{
-      --bg: #0f172a;
-      --panel: #101625cc;
-      --text: #e5e7eb;
-      --muted: #94a3b8;
-      --accent: #fbbf24;
-      --accent2:#f59e0b;
+      --bg:#0f172a; --panel:#101625cc; --text:#e5e7eb; --muted:#94a3b8;
+      --accent:#fbbf24; --accent2:#f59e0b;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
+    *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;display:grid;place-items:center;background:radial-gradient(80vw 80vh at 50% -10%,#182236,#0b1220);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans JP,sans-serif;color:var(--text)}
     .card{width:min(720px,94vw);background:linear-gradient(180deg,#0b1220dd,#0b1220b0);border:1px solid #1f2937;border-radius:20px;padding:24px 20px;box-shadow:0 10px 30px #0008}
     h1{margin:6px 0 6px;font-size:clamp(22px,4vw,28px)}
@@ -39,8 +34,7 @@
     .slip .tip{margin-top:4px;font-size:12px;color:#4b5563}
     .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}
     button{appearance:none;border:none;border-radius:14px;padding:12px 16px;cursor:pointer;font-weight:700;letter-spacing:.02em;background:linear-gradient(90deg,var(--accent),var(--accent2));color:#3a2200;transition:transform .08s ease,box-shadow .08s ease;box-shadow:0 6px 16px #0008}
-    button:hover{transform:translateY(-1px)}
-    button:active{transform:translateY(1px)}
+    button:hover{transform:translateY(-1px)} button:active{transform:translateY(1px)}
     button.secondary{background:#0f172a;color:#cbd5e1;border:1px solid #334155}
     .history{margin-top:14px;font-size:13px;color:var(--muted)}
     .history ul{margin:6px 0 0;padding-left:18px;max-height:140px;overflow:auto}
@@ -52,13 +46,13 @@
   <main class="card" role="main">
     <h1>明日の運勢ガチャ</h1>
     <p class="sub">ボタンを押すとクッキーが降りて割れて、おみくじが出る。</p>
+
     <section class="stage" aria-live="polite" aria-atomic="true">
       <div class="cookieWrap" id="cookieWrap" aria-hidden="true">
-        <svg id="cookieSvg" class="cookie" width="200" height="160" viewBox="0 0 200 160">
+        <svg id="cookieSvg" class="cookie" width="200" height="160" viewBox="0 0 200 160" role="img" aria-label="フォーチューンクッキー">
           <defs>
             <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stop-color="#fbbf24"/>
-              <stop offset="100%" stop-color="#d97706"/>
+              <stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/>
             </linearGradient>
           </defs>
           <g id="cookieGroup">
@@ -73,24 +67,28 @@
           </g>
         </svg>
       </div>
+
       <div class="slip" id="slip">
         <div class="label">おみくじ</div>
         <div class="fortune" id="slipFortune">—</div>
         <div class="tip" id="slipTip"></div>
       </div>
     </section>
+
     <div class="btns">
       <button id="roll">明日の運勢を引く</button>
       <button id="copy" class="secondary">コピー</button>
       <button id="share" class="secondary">シェア</button>
       <button id="reset" class="secondary">履歴クリア</button>
     </div>
+
     <div class="counter" id="counter">回した回数: 0</div>
     <div class="history" id="history">履歴<ul id="histList"></ul></div>
     <footer><span id="footerDate"></span></footer>
   </main>
 
 <script>
+  // ===== データ =====
   const FORTUNES = [
     { name: '太陽吉', emoji: '☀', tip: '朝起きたら太陽を浴びよう！1日のいいスタートがきれるよ～' },
     { name: '流星吉', emoji: '🌠', tip: '思いついた奇跡は忘れないうちにメモ！次の軌跡になるよ！' },
@@ -104,6 +102,7 @@
     { name: '料理吉', emoji: '🍳', tip: '何か作ろう！思いもよらぬおいしい味付けが見つかる予感！' }
   ];
 
+  // ===== 変数群 =====
   const $ = sel => document.querySelector(sel);
   const wait = ms => new Promise(r=>setTimeout(r,ms));
   const counterEl = $('#counter');
@@ -117,77 +116,166 @@
   const leftHalf = $('#leftHalf');
   const rightHalf = $('#rightHalf');
   let state = JSON.parse(localStorage.getItem('tomorrow_fortune_v1')||'{"count":0,"history":[]}');
+
+  // 本番URL（GitHub Pages）
   const PUBLIC_URL = 'https://gogogobolder.github.io/fortune-cookie/';
 
+  // ===== Util =====
   function chooseFortune(){
     const f = FORTUNES[Math.floor(Math.random()*FORTUNES.length)];
     slipFortune.textContent = `${f.emoji} ${f.name}`;
     slipTip.textContent = f.tip;
     return f;
   }
+  function stamp(){
+    const d=new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+  function render(){
+    counterEl.textContent = `回した回数: ${state.count}`;
+    histList.innerHTML = state.history.map(h=>`<li>${h.time}：${h.label}</li>`).join('');
+  }
+  // 共有文（運勢＋ヒント＋タグ）
+  function buildShareText(){
+    // 共有に使う「運勢つきURL」を作る関数
+function buildShareUrl(){
+  const fortune = document.getElementById('slipFortune').textContent;
+  const tip = document.getElementById('slipTip').textContent;
+  return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}`;
+}
 
-  function stamp(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;}
-  function render(){counterEl.textContent=`回した回数: ${state.count}`;histList.innerHTML=state.history.map(h=>`<li>${h.time}：${h.label}</li>`).join('');}
+    const title = '明日の運勢ガチャ';
+    const fortune = document.getElementById('slipFortune').textContent;
+    const tip = document.getElementById('slipTip').textContent;
+    const tags = '#明日の運勢ガチャ #ノーコード';
+    return `【${title}】\n${fortune}\nヒント：${tip}\n${tags}`;
+  }
+  function once(el, event){
+    return new Promise(res=>{
+      const h=()=>{ el.removeEventListener(event,h); res(); };
+      el.addEventListener(event,h);
+    });
+  }
+  function onceWithTimeout(el, event, ms){
+    return new Promise(res=>{
+      let done=false;
+      const h=()=>{ if(done) return; done=true; el.removeEventListener(event,h); res(); };
+      el.addEventListener(event,h);
+      setTimeout(()=>{ if(done) return; done=true; el.removeEventListener(event,h); res(); }, ms);
+    });
+  }
 
-  function once(el, event){return new Promise(res=>{const h=()=>{el.removeEventListener(event,h);res();};el.addEventListener(event,h);});}
-  function onceWithTimeout(el, event, ms){return new Promise(res=>{let done=false;const h=()=>{if(done)return;done=true;el.removeEventListener(event,h);res();};el.addEventListener(event,h);setTimeout(()=>{if(done)return;done=true;el.removeEventListener(event,h);res();},ms);});}
-
+  // ===== アニメ制御 =====
   async function animateCookie(){
+    // 前回の紙を隠す
     slip.classList.remove('show');
     slipFortune.textContent='—';
     slipTip.textContent='';
+
+    // リセット
     crackPath.style.opacity=0;
     leftHalf.style.opacity=0; rightHalf.style.opacity=0;
     cookieSvg.style.opacity=1; cookieSvg.classList.remove('crack');
     cookieWrap.classList.remove('bob');
+
+    // 1) Drop
     cookieWrap.classList.remove('drop'); void cookieWrap.offsetWidth;
-    const pDrop=onceWithTimeout(cookieWrap,'animationend',1100);
+    const pDrop = onceWithTimeout(cookieWrap,'animationend',1100);
     cookieWrap.classList.add('drop');
     await pDrop; cookieWrap.classList.add('bob');
+
+    // 2) Crack hint
     crackPath.style.opacity=.9; cookieSvg.classList.add('crack');
     navigator.vibrate?.(40); await wait(200);
+
+    // 3) Split
     crackPath.style.opacity=0; cookieSvg.style.opacity=0;
     leftHalf.style.opacity=1; rightHalf.style.opacity=1;
     leftHalf.classList.remove('fly'); rightHalf.classList.remove('fly');
     void leftHalf.offsetWidth;
-    const pL=onceWithTimeout(leftHalf,'animationend',800);
-    const pR=onceWithTimeout(rightHalf,'animationend',800);
+    const pL = onceWithTimeout(leftHalf,'animationend',800);
+    const pR = onceWithTimeout(rightHalf,'animationend',800);
     leftHalf.classList.add('fly'); rightHalf.classList.add('fly');
     await Promise.all([pL,pR]);
+
+    // 4) 紙を出す
     chooseFortune();
     slip.classList.remove('show'); void slip.offsetWidth; slip.classList.add('show');
   }
 
   async function roll(){
-    const btn=document.getElementById('roll');
-    btn.disabled=true; btn.style.opacity=.7;
+    const btn = document.getElementById('roll');
+    btn.disabled = true; btn.style.opacity = .7;
     try{
       await animateCookie();
       state.count++;
-      state.history.unshift({time:stamp(),label:slipFortune.textContent});
-      state.history=state.history.slice(0,20);
-      localStorage.setItem('tomorrow_fortune_v1',JSON.stringify(state));
+      state.history.unshift({ time: stamp(), label: slipFortune.textContent });
+      state.history = state.history.slice(0,20);
+      localStorage.setItem('tomorrow_fortune_v1', JSON.stringify(state));
       render();
-    }finally{btn.disabled=false; btn.style.opacity='';}
+    } finally {
+      btn.disabled = false; btn.style.opacity = '';
+    }
   }
 
+  // ===== イベント =====
   $('#roll').addEventListener('click', roll);
-  $('#copy').addEventListener('click', async()=>{const text=`明日の運勢：${slipFortune.textContent}（ヒント：${slipTip.textContent}）`;await navigator.clipboard.writeText(text).catch(()=>alert('コピーできなかった…'));});
-  $('#share').addEventListener('click', async () => {
-    const text = `明日の運勢：${document.getElementById('slipFortune').textContent}`;
-    const url  = PUBLIC_URL;
-    try{
-      if(navigator.share){
-        await navigator.share({ title:'明日の運勢ガチャ', text, url });
-      }else{
-        await navigator.clipboard.writeText(`${text}\n${url}`);
-        alert('リンク付きでコピーしたよ');
-      }
-    }catch{}
+
+// コピー：運勢＋ヒント＋URL（運勢つき）
+$('#copy').addEventListener('click', async () => {
+  const text = `${buildShareText()}\n${buildShareUrl()}`;
+  try{
+    await navigator.clipboard.writeText(text);
+    alert('運勢とリンクをコピーしたよ');
+  }catch{
+    const u = `https://twitter.com/intent/tweet?text=${encodeURIComponent(buildShareText())}&url=${encodeURIComponent(buildShareUrl())}`;
+    window.open(u,'_blank');
+  }
+});
+
+// シェア：Web Share API → クリップボード → Twitter（いずれも運勢つきURL）
+$('#share').addEventListener('click', async () => {
+  const text = buildShareText();
+  const url  = buildShareUrl();
+  try{
+    if(navigator.share){
+      await navigator.share({ title:'明日の運勢ガチャ', text, url });
+    }else{
+      await navigator.clipboard.writeText(`${text}\n${url}`);
+      alert('運勢とリンクをコピーしたよ');
+    }
+  }catch{
+    const u = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    window.open(u,'_blank');
+  }
+});
+
+
+  $('#reset').addEventListener('click', () => {
+    state = { count:0, history:[] };
+    localStorage.setItem('tomorrow_fortune_v1', JSON.stringify(state));
+    render();
+    slip.classList.remove('show');
   });
-  $('#reset').addEventListener('click',()=>{state={count:0,history:[]};localStorage.setItem('tomorrow_fortune_v1',JSON.stringify(state));render();slip.classList.remove('show');});
+
+  // 共有URLで開かれたら、その運勢を最初から表示
+(function hydrateFromQuery(){
+  const sp = new URLSearchParams(location.search);
+  if(!sp.has('f')) return;
+  const f = sp.get('f'); // 例: "☀ 太陽吉"
+  const t = sp.get('t') || '';
+  slipFortune.textContent = f;
+  slipTip.textContent = t;
+  slip.classList.add('show');
+  // クエリを消して綺麗にしたい場合は次の1行を有効化
+  // history.replaceState(null, '', PUBLIC_URL);
+})();
+
+  // 初期表示
   render();
-  document.getElementById('footerDate').textContent=`© ${new Date().getFullYear()} Tomorrow Fortune Gacha`;
+  document.getElementById('footerDate').textContent = `© ${new Date().getFullYear()} Tomorrow Fortune Gacha`;
+
+  // PWAはローカルだと不要。必要ならLive Server/本番で有効化してOK。
 </script>
 </body>
 </html>
