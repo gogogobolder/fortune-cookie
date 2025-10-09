@@ -89,6 +89,7 @@
     <div class="history" id="history">履歴<ul id="histList"></ul></div>
     <footer><span id="footerDate"></span></footer>
   </main>
+
 <script>
   const FORTUNES = [
     { name: '太陽吉', emoji: '☀', tip: '朝起きたら太陽を浴びよう！1日のいいスタートがきれるよ～' },
@@ -102,6 +103,7 @@
     { name: '散歩吉', emoji: '🐾', tip: 'お散歩しに外に出よう！金木犀の香りを嗅げるチャンス！' },
     { name: '料理吉', emoji: '🍳', tip: '何か作ろう！思いもよらぬおいしい味付けが見つかる予感！' }
   ];
+
   const $ = sel => document.querySelector(sel);
   const wait = ms => new Promise(r=>setTimeout(r,ms));
   const counterEl = $('#counter');
@@ -115,6 +117,7 @@
   const leftHalf = $('#leftHalf');
   const rightHalf = $('#rightHalf');
   let state = JSON.parse(localStorage.getItem('tomorrow_fortune_v1')||'{"count":0,"history":[]}');
+  const PUBLIC_URL = 'https://gogogobolder.github.io/fortune-cookie/';
 
   function chooseFortune(){
     const f = FORTUNES[Math.floor(Math.random()*FORTUNES.length)];
@@ -122,78 +125,69 @@
     slipTip.textContent = f.tip;
     return f;
   }
+
   function stamp(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()} ${d.getHours()}:${d.getMinutes()}`;}
   function render(){counterEl.textContent=`回した回数: ${state.count}`;histList.innerHTML=state.history.map(h=>`<li>${h.time}：${h.label}</li>`).join('');}
 
   function once(el, event){return new Promise(res=>{const h=()=>{el.removeEventListener(event,h);res();};el.addEventListener(event,h);});}
+  function onceWithTimeout(el, event, ms){return new Promise(res=>{let done=false;const h=()=>{if(done)return;done=true;el.removeEventListener(event,h);res();};el.addEventListener(event,h);setTimeout(()=>{if(done)return;done=true;el.removeEventListener(event,h);res();},ms);});}
 
-// 安全版：アニメ完了を待つときに取りこぼし防止＆タイムアウトを入れる
-function onceWithTimeout(el, event, ms){
-  return new Promise(res=>{
-    let done=false; const h=()=>{ if(done) return; done=true; el.removeEventListener(event,h); res(); };
-    el.addEventListener(event,h); setTimeout(()=>{ if(done) return; done=true; el.removeEventListener(event,h); res(); }, ms);
-  });
-}
-
-async function animateCookie(){
-  // 0) 先に前回結果を隠して初期化
-  slip.classList.remove('show');
-  slipFortune.textContent='—';
-  slipTip.textContent='';
-
-  // リセット
-  crackPath.style.opacity=0;
-  leftHalf.style.opacity=0; rightHalf.style.opacity=0;
-  cookieSvg.style.opacity=1; cookieSvg.classList.remove('crack');
-  cookieWrap.classList.remove('bob');
-
-  // 1) Drop in（待機→クラス付与の順）
-  cookieWrap.classList.remove('drop'); void cookieWrap.offsetWidth;
-  const pDrop = onceWithTimeout(cookieWrap,'animationend', 1100);
-  cookieWrap.classList.add('drop');
-  await pDrop; cookieWrap.classList.add('bob');
-
-  // 2) Crack hint
-  crackPath.style.opacity=.9; cookieSvg.classList.add('crack');
-  navigator.vibrate?.(40); await wait(200);
-
-  // 3) Split（左右同時・待機先）
-  crackPath.style.opacity=0; cookieSvg.style.opacity=0;
-  leftHalf.style.opacity=1; rightHalf.style.opacity=1;
-  leftHalf.classList.remove('fly'); rightHalf.classList.remove('fly');
-  void leftHalf.offsetWidth;
-  const pL = onceWithTimeout(leftHalf,'animationend', 800);
-  const pR = onceWithTimeout(rightHalf,'animationend', 800);
-  leftHalf.classList.add('fly'); rightHalf.classList.add('fly');
-  await Promise.all([pL,pR]);
-
-  // 4) 新しい結果を出す
-  chooseFortune();
-  slip.classList.remove('show'); void slip.offsetWidth; slip.classList.add('show');
-}
-
-async function roll(){
-  // ボタン多重押下ガード
-  const btn = document.getElementById('roll');
-  btn.disabled = true; btn.style.opacity = .7;
-  try{
-    await animateCookie();
-    state.count++;
-    state.history.unshift({time:stamp(),label:slipFortune.textContent});
-    state.history = state.history.slice(0,20);
-    localStorage.setItem('tomorrow_fortune_v1', JSON.stringify(state));
-    render();
-  } finally {
-    btn.disabled = false; btn.style.opacity = '';
+  async function animateCookie(){
+    slip.classList.remove('show');
+    slipFortune.textContent='—';
+    slipTip.textContent='';
+    crackPath.style.opacity=0;
+    leftHalf.style.opacity=0; rightHalf.style.opacity=0;
+    cookieSvg.style.opacity=1; cookieSvg.classList.remove('crack');
+    cookieWrap.classList.remove('bob');
+    cookieWrap.classList.remove('drop'); void cookieWrap.offsetWidth;
+    const pDrop=onceWithTimeout(cookieWrap,'animationend',1100);
+    cookieWrap.classList.add('drop');
+    await pDrop; cookieWrap.classList.add('bob');
+    crackPath.style.opacity=.9; cookieSvg.classList.add('crack');
+    navigator.vibrate?.(40); await wait(200);
+    crackPath.style.opacity=0; cookieSvg.style.opacity=0;
+    leftHalf.style.opacity=1; rightHalf.style.opacity=1;
+    leftHalf.classList.remove('fly'); rightHalf.classList.remove('fly');
+    void leftHalf.offsetWidth;
+    const pL=onceWithTimeout(leftHalf,'animationend',800);
+    const pR=onceWithTimeout(rightHalf,'animationend',800);
+    leftHalf.classList.add('fly'); rightHalf.classList.add('fly');
+    await Promise.all([pL,pR]);
+    chooseFortune();
+    slip.classList.remove('show'); void slip.offsetWidth; slip.classList.add('show');
   }
-}
+
+  async function roll(){
+    const btn=document.getElementById('roll');
+    btn.disabled=true; btn.style.opacity=.7;
+    try{
+      await animateCookie();
+      state.count++;
+      state.history.unshift({time:stamp(),label:slipFortune.textContent});
+      state.history=state.history.slice(0,20);
+      localStorage.setItem('tomorrow_fortune_v1',JSON.stringify(state));
+      render();
+    }finally{btn.disabled=false; btn.style.opacity='';}
+  }
 
   $('#roll').addEventListener('click', roll);
   $('#copy').addEventListener('click', async()=>{const text=`明日の運勢：${slipFortune.textContent}（ヒント：${slipTip.textContent}）`;await navigator.clipboard.writeText(text).catch(()=>alert('コピーできなかった…'));});
-  $('#share').addEventListener('click', async()=>{const text=`明日の運勢：${slipFortune.textContent}`;if(navigator.share){await navigator.share({text,title:'明日の運勢ガチャ',url:location.href}).catch(()=>{});}else{alert(text);}});
+  $('#share').addEventListener('click', async () => {
+    const text = `明日の運勢：${document.getElementById('slipFortune').textContent}`;
+    const url  = PUBLIC_URL;
+    try{
+      if(navigator.share){
+        await navigator.share({ title:'明日の運勢ガチャ', text, url });
+      }else{
+        await navigator.clipboard.writeText(`${text}\n${url}`);
+        alert('リンク付きでコピーしたよ');
+      }
+    }catch{}
+  });
   $('#reset').addEventListener('click',()=>{state={count:0,history:[]};localStorage.setItem('tomorrow_fortune_v1',JSON.stringify(state));render();slip.classList.remove('show');});
   render();
-  document.getElementById('footerDate').textContent = `© ${new Date().getFullYear()} Tomorrow Fortune Gacha`;
+  document.getElementById('footerDate').textContent=`© ${new Date().getFullYear()} Tomorrow Fortune Gacha`;
 </script>
 </body>
 </html>
