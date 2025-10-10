@@ -144,22 +144,33 @@ function buildShareUrl(){
   return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}&v=${v}`;
 }
 
-$('#share').addEventListener('click', async ()=>{
+// シェアボタンの処理（改良版：PCでも確実に反応）
+$('#share').addEventListener('click', () => {
   const text = buildShareText();
   const url = buildShareUrl();
-  try{
-    if(navigator.share){
-      await navigator.share({title:'明日の運勢ガチャ', text, url});
-    }else{
-      const tw = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-      window.open(tw,'_blank');
-    }
-  }catch(e){
-    try {
-      await navigator.clipboard.writeText(`${text}\n${url}`);
-      alert('リンクをコピーしたよ！');
-    } catch {
-      alert('共有にもコピーにも失敗したみたい…');
+
+  // まず、モバイル環境かチェック
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+  if (isMobile && navigator.share) {
+    // スマホ：ネイティブの共有シート
+    navigator.share({
+      title: '明日の運勢ガチャ',
+      text,
+      url
+    }).catch(err => {
+      console.warn('共有キャンセルまたは失敗:', err);
+      alert('共有できなかったみたい…別の方法を試してね');
+    });
+  } else {
+    // PC：Twitterウィンドウを開く or コピー
+    const twitterIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+    const win = window.open(twitterIntent, '_blank');
+    if (!win) {
+      // もしポップアップがブロックされたら、クリップボードにコピー
+      navigator.clipboard.writeText(`${text}\n${url}`)
+        .then(() => alert('リンクをコピーしたよ！'))
+        .catch(() => alert('コピーできなかった…'));
     }
   }
 });
