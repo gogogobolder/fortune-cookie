@@ -1,68 +1,211 @@
 <!doctype html>
 <html lang="ja">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>明日の運勢ガチャ</title>
+  <title>ちょっと健やかガチャ</title>
   <style>
-    :root{
-      --bg:#0f172a; --text:#e5e7eb; --muted:#94a3b8;
-      --accent:#fbbf24; --accent2:#f59e0b;
+    :root {
+      --bg: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #fbbf24;
+      --accent2: #f59e0b;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%;margin:0;display:grid;place-items:center;
-      background:radial-gradient(80vw 80vh at 50% -10%,#182236,#0b1220);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans JP,sans-serif;
-      color:var(--text)}
-    .card{width:min(720px,94vw);background:#0b1220cc;border:1px solid #1f2937;
-      border-radius:20px;padding:24px;box-shadow:0 10px 30px #0008}
-    .stage{position:relative;height:300px;border-radius:16px;background:#0b1226;
-      border:1px dashed #334155;overflow:hidden;display:grid;place-items:center}
-    .cookieWrap{position:absolute;top:-200px;width:220px;height:200px;
-      display:grid;place-items:center;pointer-events:none}
-    .cookieWrap.drop{animation:drop 900ms cubic-bezier(.2,.9,.2,1) forwards}
-    @keyframes drop{0%{transform:translateY(-220px)}70%{transform:translateY(260px)}100%{transform:translateY(220px)}}
-    .cookieWrap.bob{animation:bob 2.4s ease-in-out infinite}
-    @keyframes bob{0%,100%{transform:translateY(220px)}50%{transform:translateY(214px)}}
-    .cookie.crack{animation:crack 500ms ease forwards}
-    @keyframes crack{0%{filter:drop-shadow(0 6px 12px #0008)}100%{filter:drop-shadow(0 16px 26px #0008)}}
-    .leftHalf.fly{animation:flyL 650ms cubic-bezier(.2,.7,.1,1) forwards}
-    .rightHalf.fly{animation:flyR 650ms cubic-bezier(.2,.7,.1,1) forwards}
-    @keyframes flyL{to{transform:translate(-120px,-30px) rotate(-22deg)}}
-    @keyframes flyR{to{transform:translate(120px,-10px) rotate(22deg)}}
-    .slip{position:absolute;bottom:120px;left:50%;transform:translate(-50%,40px);
-      min-width:260px;background:#fff;color:#111;border-radius:6px;padding:10px 14px;
-      border:1px solid #e5e7eb;box-shadow:0 10px 20px #0007;opacity:0}
-    .slip.show{animation:slipOut 700ms cubic-bezier(.2,.8,.2,1) forwards}
-    @keyframes slipOut{from{opacity:0;transform:translate(-50%,60px)}to{opacity:1;transform:translate(-50%,-10px)}}
-    button{border:none;border-radius:14px;padding:12px 16px;cursor:pointer;
-      font-weight:700;background:linear-gradient(90deg,var(--accent),var(--accent2));
-      color:#3a2200;margin:6px;box-shadow:0 6px 16px #0008}
-    button.secondary{background:#0f172a;color:#cbd5e1;border:1px solid #334155}
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(80vw 80vh at 50% -10%, #182236, #0b1220);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, sans-serif;
+      color: var(--text)
+    }
+
+    .card {
+      width: min(720px, 94vw);
+      background: #0b1220cc;
+      border: 1px solid #1f2937;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px #0008
+    }
+
+    .stage {
+      position: relative;
+      height: 300px;
+      border-radius: 16px;
+      background: #0b1226;
+      border: 1px dashed #334155;
+      overflow: hidden;
+      display: grid;
+      place-items: center
+    }
+
+    .cookieWrap {
+      position: absolute;
+      top: -200px;
+      width: 220px;
+      height: 200px;
+      display: grid;
+      place-items: center;
+      pointer-events: none
+    }
+
+    .cookieWrap.drop {
+      animation: drop 900ms cubic-bezier(.2, .9, .2, 1) forwards
+    }
+
+    @keyframes drop {
+      0% {
+        transform: translateY(-220px)
+      }
+
+      70% {
+        transform: translateY(260px)
+      }
+
+      100% {
+        transform: translateY(220px)
+      }
+    }
+
+    .cookieWrap.bob {
+      animation: bob 2.4s ease-in-out infinite
+    }
+
+    @keyframes bob {
+
+      0%,
+      100% {
+        transform: translateY(220px)
+      }
+
+      50% {
+        transform: translateY(214px)
+      }
+    }
+
+    .cookie.crack {
+      animation: crack 500ms ease forwards
+    }
+
+    @keyframes crack {
+      0% {
+        filter: drop-shadow(0 6px 12px #0008)
+      }
+
+      100% {
+        filter: drop-shadow(0 16px 26px #0008)
+      }
+    }
+
+    .leftHalf.fly {
+      animation: flyL 650ms cubic-bezier(.2, .7, .1, 1) forwards
+    }
+
+    .rightHalf.fly {
+      animation: flyR 650ms cubic-bezier(.2, .7, .1, 1) forwards
+    }
+
+    @keyframes flyL {
+      to {
+        transform: translate(-120px, -30px) rotate(-22deg)
+      }
+    }
+
+    @keyframes flyR {
+      to {
+        transform: translate(120px, -10px) rotate(22deg)
+      }
+    }
+
+    .slip {
+      position: absolute;
+      bottom: 120px;
+      left: 50%;
+      transform: translate(-50%, 40px);
+      min-width: 260px;
+      background: #fff;
+      color: #111;
+      border-radius: 6px;
+      padding: 10px 14px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 20px #0007;
+      opacity: 0
+    }
+
+    .slip.show {
+      animation: slipOut 700ms cubic-bezier(.2, .8, .2, 1) forwards
+    }
+
+    @keyframes slipOut {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 60px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, -10px)
+      }
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      color: #3a2200;
+      margin: 6px;
+      box-shadow: 0 6px 16px #0008
+    }
+
+    button.secondary {
+      background: #0f172a;
+      color: #cbd5e1;
+      border: 1px solid #334155
+    }
   </style>
 </head>
+
 <body>
   <main class="card">
-    <h1>明日の運勢ガチャ</h1>
-    <p>クッキーが割れると、明日の運勢が出てくるよ！</p>
+    <h1>ちょっと健やかガチャ</h1>
+    <p>クッキーが割れると、今日を健やかに過ごせるヒントがでてくるよ！</p>
 
     <section class="stage">
       <div class="cookieWrap" id="cookieWrap">
         <svg id="cookieSvg" class="cookie" width="200" height="160" viewBox="0 0 200 160">
           <defs>
             <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#d97706"/>
+              <stop offset="0%" stop-color="#fbbf24" />
+              <stop offset="100%" stop-color="#d97706" />
             </linearGradient>
           </defs>
           <g id="cookieGroup">
-            <path id="whole" d="M30 100c0-38 38-70 70-70s70 32 70 70c0 18-14 28-30 28-14 0-26-6-40-6s-26 6-40 6c-16 0-30-10-30-28z" fill="url(#g1)" stroke="#b45309" stroke-width="2"/>
-            <path id="crack" d="M100 36 L100 126" stroke="#b45309" stroke-width="2" stroke-dasharray="6 6" opacity="0"/>
+            <path id="whole"
+              d="M30 100c0-38 38-70 70-70s70 32 70 70c0 18-14 28-30 28-14 0-26-6-40-6s-26 6-40 6c-16 0-30-10-30-28z"
+              fill="url(#g1)" stroke="#b45309" stroke-width="2" />
+            <path id="crack" d="M100 36 L100 126" stroke="#b45309" stroke-width="2" stroke-dasharray="6 6"
+              opacity="0" />
           </g>
           <g id="leftHalf" class="leftHalf" opacity="0">
-            <path d="M30 100c0-38 38-70 70-70v88c-14 0-26 6-40 6-16 0-30-10-30-24z" fill="url(#g1)" stroke="#b45309" stroke-width="2"/>
+            <path d="M30 100c0-38 38-70 70-70v88c-14 0-26 6-40 6-16 0-30-10-30-24z" fill="url(#g1)" stroke="#b45309"
+              stroke-width="2" />
           </g>
           <g id="rightHalf" class="rightHalf" opacity="0">
-            <path d="M100 30c32 0 70 32 70 70 0 14-14 24-30 24-14 0-26-6-40-6V30z" fill="url(#g1)" stroke="#b45309" stroke-width="2"/>
+            <path d="M100 30c32 0 70 32 70 70 0 14-14 24-30 24-14 0-26-6-40-6V30z" fill="url(#g1)" stroke="#b45309"
+              stroke-width="2" />
           </g>
         </svg>
       </div>
@@ -74,115 +217,138 @@
     </section>
 
     <div>
-      <button id="roll">明日の運勢を引く</button>
+      <button id="roll">健やかなヒントを見てみる</button>
       <button id="share" class="secondary">シェア</button>
     </div>
   </main>
 
-<script>
-const FORTUNES = [
-    { name: '太陽吉', emoji: '☀', tip: '朝起きたら太陽を浴びよう！1日のいいスタートがきれるよ～' },
-    { name: '流星吉', emoji: '🌠', tip: '思いついた奇跡は忘れないうちにメモ！次の軌跡になるよ！' },
-    { name: '笑顔吉', emoji: '😆', tip: '鏡を見てニコってしよう！活力アップするよ！' },
-    { name: '冒険吉', emoji: '🚶‍♂️‍➡️', tip: 'いつもと違う道を歩こう！新しい発見があるかも？' },
-    { name: '風吉', emoji: '🍃', tip: '外で風を感じてみて！台風が来るかも～' },
-    { name: 'カフェ吉', emoji: '☕', tip: 'ひとやすみしてる？明日はほっと一息つこうね～' },
-    { name: '天才吉', emoji: '🧠', tip: '思いもよらぬアイデアが降りてきそう！そんなあなたは天才！' },
-    { name: 'お喋り吉', emoji: '💬', tip: '誰かと話すと、心が軽くなって飛べるかもよ！' },
-    { name: '散歩吉', emoji: '🐾', tip: 'お散歩しに外に出よう！金木犀の香りを嗅げるチャンス！' },
-    { name: '料理吉', emoji: '🍳', tip: '何か作ろう！思いもよらぬおいしい味付けが見つかる予感！' }
-  ];
+  <script>
+    const FORTUNES = [
+      { name: '深呼吸タイム', emoji: '🌿', tip: '1分だけ目を閉じて、深く息を吸って長～く息を吐いてみよう！' },
+      { name: '肩回し', emoji: '💪', tip: '両肩を大きく大きく回して、肩こり撃退！' },
+      { name: '水分チャージ', emoji: '💧', tip: '今日はどのくらいお水を飲んだ？身体が喜ぶからたくさん飲もう！その分、トイレに行きたくなっちゃうけど！' },
+      { name: 'やさしい姿勢', emoji: '🪑', tip: '疲れていたら背もたれに寄りかかろうね。' },
+      { name: '目の休憩', emoji: '👀', tip: '窓から外の景色を眺めてみよう！どんな天気かな？' },
+      { name: '日光浴', emoji: '☀️', tip: 'カーテンを開けて、太陽を感じよう！' },
+      { name: 'ありがとう運動', emoji: '💛', tip: '嬉しかったことを思い出して直接は言えなかった「ありがとう」を心で唱えよう！' },
+      { name: '室内散歩', emoji: '🚶‍♀️', tip: '起き上がれるなら部屋を一周してみよう！無理はしないでね。' },
+      { name: '褒め褒めタイム', emoji: '🌼', tip: '自分を褒めよう！「私やるじゃん！！」ってね。' },
+      { name: '首ストレッチ', emoji: '🧣', tip: '左右にゆっくりと倒してみよう！どう？伸びたかな' },
+      { name: '夜空を見てみよう', emoji: '🌠', tip: '今夜は星が見えるかな？星って綺麗だよね✨' },
+      { name: '笑っちゃおう！', emoji: '😆', tip: '今この場でニコってしよう！口角を上げる時間を増やそう～' },
+      { name: '散歩しちゃおう！', emoji: '🚶‍♂️‍➡️', tip: 'ちょっと珍しく違う道を歩かない？新しい発見があるかもよ～' },
+      { name: '風を感じよう', emoji: '🍃', tip: '窓を開けてみて！どんな風？秋の香りする？' },
+      { name: 'お家カフェしちゃおう！', emoji: '☕', tip: 'ひとやすみしてる？ホッと一息つこうね～' },
+      { name: '手の運動をしよう！', emoji: '✋', tip: '手をぎゅっと握ってぱっと開いてみるのを繰り返してね！' },
+      { name: 'ぼけ～っとタイム', emoji: '🫠', tip: '何も考えずに、怠惰にぼけ～っとしてみよう～' },
+      { name: '空気の入れ替えするよ！', emoji: '🍃', tip: '窓を開けてちょっとでも良いから空気を入れ替えよう～' },
+      { name: 'ほにゃほにゃ', emoji: '🫠', tip: '肩の力を抜こう！ほにゃほにゃ～～' },
+      { name: '鼻を喜ばせよう！', emoji: '👃', tip: '好きな香りはある？それを嗅いでみよ～' },
+      { name: '手の保湿をしよう！', emoji: '👐', tip: '乾燥する季節だね。香りと保湿でイキイキしよう～' },
+      { name: '足踏みタイム', emoji: '👣', tip: 'ちょっと立ち上がって、30秒間その場で足踏みしてみよう～' },
+      { name: '頭もみもみ', emoji: '🤗', tip: '頭皮を優しくマッサージしてみよう～' },
+      { name: '伸びしよう～～', emoji: '🪽', tip: '上でも横でもどこかに向かって伸びをしよう～。リフレッシュ～' },
+      { name: '1曲聞こう！', emoji: '🎶', tip: '好きな歌を聞こう！アーティストさんありがとう～' },
+      { name: '背筋を伸ばそう！', emoji: '🧘', tip: '1分でも良いから伸ばしてみよ～' },
+      { name: 'お言葉から元気を', emoji: '🌟', tip: '好きな言葉ってある？それを心の中でつぶやこう！' },
+      { name: 'ありがとうを伝えよう！', emoji: '🥰', tip: 'SNSでだれかに伝えてみて！' },
+      { name: 'お絵描きタイム', emoji: '🎨', tip: '好きなように好きなものを描いてみよう～' },
+      { name: '写真撮って残そう！', emoji: '📷', tip: '今日という健やかな日を残してみない？' },
+      { name: '楽しい自分を想像してみて！', emoji: '🤔', tip: '未来は明るい！！' },
 
-const PUBLIC_URL = 'https://gogogobolder.github.io/fortune-cookie/';
-const $ = s => document.querySelector(s);
-const wait = ms => new Promise(r=>setTimeout(r,ms));
-const slip = $('#slip'), slipFortune = $('#slipFortune'), slipTip = $('#slipTip');
-const cookieWrap = $('#cookieWrap'), cookieSvg = $('#cookieSvg'),
-  crackPath = $('#crack'), leftHalf = $('#leftHalf'), rightHalf = $('#rightHalf');
+    ];
 
-function chooseFortune(){
-  const f = FORTUNES[Math.floor(Math.random()*FORTUNES.length)];
-  slipFortune.textContent = `${f.emoji} ${f.name}`;
-  slipTip.textContent = f.tip;
-}
+    const PUBLIC_URL = 'https://gogogobolder.github.io/fortune-cookie/';
+    const $ = s => document.querySelector(s);
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+    const slip = $('#slip'), slipFortune = $('#slipFortune'), slipTip = $('#slipTip');
+    const cookieWrap = $('#cookieWrap'), cookieSvg = $('#cookieSvg'),
+      crackPath = $('#crack'), leftHalf = $('#leftHalf'), rightHalf = $('#rightHalf');
 
-async function animateCookie(){
-  slip.classList.remove('show');
-  crackPath.style.opacity=0;
-  leftHalf.style.opacity=0; rightHalf.style.opacity=0;
-  cookieSvg.style.opacity=1; cookieWrap.classList.remove('bob');
-
-  cookieWrap.classList.remove('drop'); void cookieWrap.offsetWidth;
-  cookieWrap.classList.add('drop');
-  await wait(900);
-  cookieWrap.classList.add('bob');
-  crackPath.style.opacity=0.9;
-  try{navigator.vibrate(40);}catch{}
-  await wait(200);
-  crackPath.style.opacity=0;
-  cookieSvg.style.opacity=0;
-  leftHalf.style.opacity=1; rightHalf.style.opacity=1;
-  leftHalf.classList.add('fly'); rightHalf.classList.add('fly');
-  await wait(650);
-  chooseFortune();
-  slip.classList.add('show');
-}
-
-$('#roll').addEventListener('click', animateCookie);
-
-function buildShareText() {
-  const fortune = slipFortune.textContent.trim();
-  const tip = slipTip.textContent.trim();
-  return `【明日の運勢ガチャ】 ${fortune} ヒント：${tip} #明日の運勢ガチャ #ノーコード`;
-}
-
-// ====== シェア用URLを生成する関数 ======
-function buildShareUrl(){
-  const fortune = slipFortune.textContent.trim();
-  const tip = slipTip.textContent.trim();
-  const v = Date.now(); // キャッシュ避け（毎回違うURLにして最新反映）
-  return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}&v=${v}`;
-}
-
-// シェアボタンの処理（改良版：PCでも確実に反応）
-$('#share').addEventListener('click', () => {
-  const text = buildShareText();
-  const url = buildShareUrl();
-
-  // まず、モバイル環境かチェック
-  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-
-  if (isMobile && navigator.share) {
-    // スマホ：ネイティブの共有シート
-    navigator.share({
-      title: '明日の運勢ガチャ',
-      text,
-      url
-    }).catch(err => {
-      console.warn('共有キャンセルまたは失敗:', err);
-      alert('共有できなかったみたい…別の方法を試してね');
-    });
-  } else {
-    // PC：Twitterウィンドウを開く or コピー
-    const twitterIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-    const win = window.open(twitterIntent, '_blank');
-    if (!win) {
-      // もしポップアップがブロックされたら、クリップボードにコピー
-      navigator.clipboard.writeText(`${text}\n${url}`)
-        .then(() => alert('リンクをコピーしたよ！'))
-        .catch(() => alert('コピーできなかった…'));
+    function chooseFortune() {
+      const f = FORTUNES[Math.floor(Math.random() * FORTUNES.length)];
+      slipFortune.textContent = `${f.emoji} ${f.name}`;
+      slipTip.textContent = f.tip;
     }
-  }
-});
 
-// 開いた時に共有URLから表示
-(function(){
-  const sp = new URLSearchParams(location.search);
-  if(!sp.has('f')) return;
-  slipFortune.textContent = sp.get('f');
-  slipTip.textContent = sp.get('t') || '';
-  slip.classList.add('show');
-})();
-</script>
+    async function animateCookie() {
+      slip.classList.remove('show');
+      crackPath.style.opacity = 0;
+      leftHalf.style.opacity = 0; rightHalf.style.opacity = 0;
+      cookieSvg.style.opacity = 1; cookieWrap.classList.remove('bob');
+
+      cookieWrap.classList.remove('drop'); void cookieWrap.offsetWidth;
+      cookieWrap.classList.add('drop');
+      await wait(900);
+      cookieWrap.classList.add('bob');
+      crackPath.style.opacity = 0.9;
+      try { navigator.vibrate(40); } catch { }
+      await wait(200);
+      crackPath.style.opacity = 0;
+      cookieSvg.style.opacity = 0;
+      leftHalf.style.opacity = 1; rightHalf.style.opacity = 1;
+      leftHalf.classList.add('fly'); rightHalf.classList.add('fly');
+      await wait(650);
+      chooseFortune();
+      slip.classList.add('show');
+    }
+
+    $('#roll').addEventListener('click', animateCookie);
+
+    function buildShareText() {
+      const fortune = slipFortune.textContent.trim();
+      const tip = slipTip.textContent.trim();
+      return `【ちょっと健やかガチャ】 ${fortune} ヒント：${tip} #ちょっと健やかガチャ #ノーコード`;
+    }
+
+    // ====== シェア用URLを生成する関数 ======
+    function buildShareUrl() {
+      const fortune = slipFortune.textContent.trim();
+      const tip = slipTip.textContent.trim();
+      const v = Date.now(); // キャッシュ避け（毎回違うURLにして最新反映）
+      return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}&v=${v}`;
+    }
+
+    // シェアボタンの処理（改良版：PCでも確実に反応）
+    $('#share').addEventListener('click', () => {
+      const text = buildShareText();
+      const url = buildShareUrl();
+
+      // まず、モバイル環境かチェック
+      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+      if (isMobile && navigator.share) {
+        // スマホ：ネイティブの共有シート
+        navigator.share({
+          title: 'ちょっと健やかガチャ',
+          text,
+          url
+        }).catch(err => {
+          console.warn('共有キャンセルまたは失敗:', err);
+          alert('共有できなかったみたい…別の方法を試してね');
+        });
+      } else {
+        // PC：Twitterウィンドウを開く or コピー
+        const twitterIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+        const win = window.open(twitterIntent, '_blank');
+        if (!win) {
+          // もしポップアップがブロックされたら、クリップボードにコピー
+          navigator.clipboard.writeText(`${text}\n${url}`)
+            .then(() => alert('リンクをコピーしたよ！'))
+            .catch(() => alert('コピーできなかった…'));
+        }
+      }
+    });
+
+    // 開いた時に共有URLから表示
+    (function () {
+      const sp = new URLSearchParams(location.search);
+      if (!sp.has('f')) return;
+      slipFortune.textContent = sp.get('f');
+      slipTip.textContent = sp.get('t') || '';
+      slip.classList.add('show');
+    })();
+  </script>
 </body>
+
 </html>
