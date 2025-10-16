@@ -300,47 +300,42 @@
     function buildShareText() {
       const fortune = slipFortune.textContent.trim();
       const tip = slipTip.textContent.trim();
-      return `【ちょっと健やかガチャ】 ${fortune} ヒント：${tip} #ちょっと健やかガチャ #ノーコード`;
+      return `【ちょっと健やかガチャ】 ${fortune} ヒント：${tip} #ゆる健康 #ノーコード`;
     }
 
     // ====== シェア用URLを生成する関数 ======
-    function buildShareUrl() {
-      const fortune = slipFortune.textContent.trim();
-      const tip = slipTip.textContent.trim();
-      const v = Date.now(); // キャッシュ避け（毎回違うURLにして最新反映）
-      return `${PUBLIC_URL}?f=${encodeURIComponent(fortune)}&t=${encodeURIComponent(tip)}&v=${v}`;
+  // ====== シェア用URL（固定） ======
+function buildShareUrl() {
+  return 'https://gogogobolder.github.io/fortune-cookie/';
+}
+// ====== シェア用テキスト（ハッシュタグ入り） ======
+function buildShareText() {
+  const title = 'ちょっと健やかガチャ';
+  const url = buildShareUrl();
+  const hashtags = '#ゆる健康 #ノーコード';
+  return `${title} ${url} ${hashtags}`;
+}
+
+// シェアボタンの処理（PC/スマホ両対応・1行テキスト）
+$('#share').addEventListener('click', () => {
+  const text = buildShareText();
+  const url  = buildShareUrl();
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+
+  if (isMobile && navigator.share) {
+    navigator.share({ title: 'ちょっと健やかガチャ', text, url })
+      .catch(() => {/* ユーザーがキャンセルしただけなら無視 */});
+  } else {
+    const twitterIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    const win = window.open(twitterIntent, '_blank');
+    if (!win) {
+      // ポップアップブロック時のフォールバック
+      navigator.clipboard.writeText(text)
+        .then(() => alert('リンクをコピーしたよ！'))
+        .catch(() => alert('コピーできなかった…'));
     }
-
-    // シェアボタンの処理（改良版：PCでも確実に反応）
-    $('#share').addEventListener('click', () => {
-      const text = buildShareText();
-      const url = buildShareUrl();
-
-      // まず、モバイル環境かチェック
-      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-
-      if (isMobile && navigator.share) {
-        // スマホ：ネイティブの共有シート
-        navigator.share({
-          title: 'ちょっと健やかガチャ',
-          text,
-          url
-        }).catch(err => {
-          console.warn('共有キャンセルまたは失敗:', err);
-          alert('共有できなかったみたい…別の方法を試してね');
-        });
-      } else {
-        // PC：Twitterウィンドウを開く or コピー
-        const twitterIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-        const win = window.open(twitterIntent, '_blank');
-        if (!win) {
-          // もしポップアップがブロックされたら、クリップボードにコピー
-          navigator.clipboard.writeText(`${text}\n${url}`)
-            .then(() => alert('リンクをコピーしたよ！'))
-            .catch(() => alert('コピーできなかった…'));
-        }
-      }
-    });
+  }
+});
 
     // 開いた時に共有URLから表示
     (function () {
