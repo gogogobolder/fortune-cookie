@@ -308,12 +308,20 @@
 function buildShareUrl() {
   return 'https://gogogobolder.github.io/fortune-cookie/';
 }
-// ====== シェア用テキスト（ハッシュタグ入り） ======
+// ====== シェア用テキスト（結果入り） ======
 function buildShareText() {
-  const title = 'ちょっと健やかガチャ';
+  const title = '【ちょっと健やかガチャ】';
   const url = buildShareUrl();
+  const fortune = document.getElementById('slipFortune').textContent.trim();
+  const tip = document.getElementById('slipTip').textContent.trim();
   const hashtags = '#ゆる健康 #ノーコード';
-  return `${title} ${url} ${hashtags}`;
+
+  // 結果があるときだけ含める
+  if (fortune && fortune !== '—') {
+    return `${title} ${fortune}|${tip} ${url} ${hashtags}`;
+  } else {
+    return `${title} ${url} ${hashtags}`;
+  }
 }
 
 // シェアボタンの処理（PC/スマホ両対応・1行テキスト）
@@ -323,7 +331,7 @@ $('#share').addEventListener('click', () => {
   const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
 
   if (isMobile && navigator.share) {
-    navigator.share({ title: 'ちょっと健やかガチャ', text, url })
+    navigator.share({ title: '【ちょっと健やかガチャ】', text, url })
       .catch(() => {/* ユーザーがキャンセルしただけなら無視 */});
   } else {
     const twitterIntent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
