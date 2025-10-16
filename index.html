@@ -318,8 +318,7 @@ function buildShareText() {
 
   // 結果があるときだけ含める
   if (fortune && fortune !== '—') {
-    return `${title} 短時間でできるリセットアイデアをお届け！やってみることは・・・ ${fortune} ${tip} ${url} ${hashtags}`;
-
+    return `${title} 短時間でできるリセットアイデアをお届け！やってみることは・・・ ${fortune} ${tip} ｜ ${url} ${hashtags}`;
   } else {
     return `${title} ${url} ${hashtags}`;
   }
